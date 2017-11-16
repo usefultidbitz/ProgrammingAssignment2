@@ -35,12 +35,13 @@ makeCacheMatrix <- function(x = matrix()) {
     i <<- NULL
   }
   get <- function() x
-  setInverse <- function(solve) i <<- solve
-  getInverse <- function() i
+  setinvert <- function(invert) i <<- invert
+  getinvert <- function() i
   list(set = set, get = get,
-       setInverse = setInverse,
-       getInverse = getInverse)
+       setinvert = setinvert,
+       getinvert = getinvert)
 }
+
 
 
 ## The second function, cacheSolve, returns the inverse of its argument.  If has not been calcualted in the current session,
@@ -48,13 +49,17 @@ makeCacheMatrix <- function(x = matrix()) {
 ## the inverse is retrieved from cache without re-calculation.  In the latter case, a message is printed indication the cache retrieval.
 
 cacheSolve <- function(x, ...) {
-  i <- x$getInverse()
-  if ( !is.null(i) ) {
-    message("getting cached data")
-    return(i)
-  }
-  data <- x$get()
-  i <- solve(data, ...)
-  x$setInverse(i)
-  i
+    i <- x$getinvert()
+    if (!is.null(i)) {
+      message("getting cached data")
+      return(i)
+    }
+    data <- x$get()
+    if (det(data)!=0 && dim(data)[1]==dim(data)[2]) {
+      i <- solve(data)
+      x$setinvert(i)
+      i
+    }
+    else print("Matrix not invertable")
 }
+
